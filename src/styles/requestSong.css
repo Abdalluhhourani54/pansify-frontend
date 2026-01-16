@@ -1,0 +1,184 @@
+.rs-page {
+  background: #0f0f0f;
+  min-height: calc(100vh - 84px);
+  padding: 28px 0;
+}
+
+.rs-container {
+  width: 100%;
+  max-width: 1050px;
+  margin: 0 auto;
+  padding: 0 18px;
+}
+
+.rs-back {
+  display: inline-block;
+  color: #d8d8d8;
+  text-decoration: none;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+.rs-back:hover {
+  text-decoration: underline;
+}
+
+.rs-card {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 18px;
+  padding: 22px;
+}
+
+.rs-card--list {
+  margin-top: 18px;
+}
+
+.rs-title {
+  margin: 0;
+  font-size: 34px;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.rs-subtitle {
+  margin: 10px 0 18px;
+  color: #bdbdbd;
+  line-height: 1.5;
+}
+
+.rs-form {
+  display: grid;
+  gap: 16px;
+}
+
+.rs-field {
+  display: grid;
+  gap: 8px;
+}
+
+.rs-label {
+  color: #ffffff;
+  font-weight: 800;
+}
+
+.rs-inputWrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  background: #141414;
+  border: 1px solid #2a2a2a;
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+
+.rs-icon {
+  color: #9a9a9a;
+  font-size: 16px;
+}
+
+.rs-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #ffffff;
+  font-size: 14px;
+}
+
+.rs-input::placeholder {
+  color: #7c7c7c;
+}
+
+.rs-btn {
+  height: 46px;
+  border: none;
+  border-radius: 14px;
+  background: #1e40af;
+  color: #ffffff;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.rs-btn:hover {
+  filter: brightness(1.1);
+}
+
+.rs-sectionTitle {
+  margin: 0 0 14px;
+  font-size: 22px;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.rs-list {
+  display: grid;
+  gap: 14px;
+}
+
+.rs-item {
+  background: #141414;
+  border: 1px solid #2a2a2a;
+  border-radius: 16px;
+  padding: 18px;
+
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.rs-itemTitle {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.rs-itemArtist {
+  margin: 8px 0 10px;
+  color: #bdbdbd;
+  font-weight: 600;
+}
+
+.rs-itemMeta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #bdbdbd;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.rs-metaDot {
+  opacity: 0.7;
+}
+
+.rs-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 13px;
+  border: 1px solid transparent;
+}
+
+.rs-badge--approved {
+  background: rgba(16, 185, 129, 0.14);
+  border-color: rgba(16, 185, 129, 0.35);
+  color: #10b981;
+}
+
+.rs-badge--pending {
+  background: rgba(245, 158, 11, 0.14);
+  border-color: rgba(245, 158, 11, 0.35);
+  color: #f59e0b;
+}
+
+.rs-badge--rejected {
+  background: rgba(239, 68, 68, 0.14);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #ef4444;
+}

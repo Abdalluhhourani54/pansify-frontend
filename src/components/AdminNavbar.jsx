@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import { FaUserCircle, FaSignOutAlt } from "react-icons/fa";
 import "../styles/navbar.css";
 import logo from "../assets/Pansify logo.png";
 
@@ -60,7 +61,10 @@ export default function AdminNavbar() {
             type="button"
             onClick={() => { setProfileOpen(!profileOpen); setGenreOpen(false); }}
           >
-            Profile <span>▾</span>
+            Profile <FaUserCircle />
+               
+                
+                <span>▾</span>
           </button>
 
           {profileOpen && (
@@ -72,7 +76,10 @@ export default function AdminNavbar() {
               <div className="dd-sep" />
 
               <button className="dd-item" type="button" onClick={() => { alert("Logout UI only"); closeAll(); }}>
-                Logout
+                 Logout
+                
+                <FaSignOutAlt />
+               
               </button>
             </div>
           )}
