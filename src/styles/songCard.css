@@ -1,0 +1,102 @@
+.song-card {
+  background: #151515;
+  border: 1px solid #2a2a2a;
+  border-radius: 18px;
+  overflow: hidden;
+
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.song-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  border-color: #3a3a3a;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+.song-card__imageWrap {
+  position: relative;
+}
+
+.song-card__img {
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  display: block;
+}
+
+.song-card__genreBadge {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+
+  background: #1e40af;
+  color: #ffffff;
+
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.song-card__body {
+  padding: 16px;
+  background: #1b1b1b;
+}
+
+.song-card__title {
+  color: #ffffff;
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.song-card__artist {
+  color: #bdbdbd;
+  margin: 10px 0 14px 0;
+  font-size: 14px;
+}
+
+.song-card__ratingRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.song-card__stars {
+  display: flex;
+  gap: 4px;
+}
+
+.star {
+  font-size: 16px;
+  color: #606060; /* empty star */
+}
+
+.star--filled {
+  color: #f5c542; /* filled star (gold) */
+}
+
+.song-card__reviews {
+  color: #a8a8a8;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.song-card__btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+
+  padding: 12px 0;
+  border-radius: 12px;
+
+  background: #1e40af;
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 800;
+}
+
+.song-card__btn:hover {
+  filter: brightness(1.1);
+}

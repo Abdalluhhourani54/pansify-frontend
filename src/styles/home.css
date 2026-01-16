@@ -1,0 +1,32 @@
+.home {
+  padding: 34px 28px;
+  background: #0f0f0f;
+  min-height: calc(100vh - 84px);
+}
+
+.home__header {
+  max-width: 1200px;
+  margin: 0 auto 20px auto;
+}
+
+.home__title {
+  color: #ffffff;
+  font-size: 54px;
+  margin: 0;
+  letter-spacing: 0.2px;
+}
+
+.home__subtitle {
+  color: #bdbdbd;
+  margin: 12px 0 0 0;
+  font-size: 15px;
+}
+
+.home__grid {
+  max-width: 1200px;
+  margin: 26px auto 0 auto;
+
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
