@@ -1,0 +1,18 @@
+.stars {
+  display: flex;
+  gap: 6px;
+}
+
+.star {
+  font-size: 30px;
+  color: #5f5f5f;
+}
+
+.star--filled {
+  color: #f5c542;
+}
+
+.stars--small .star {
+  font-size: 15px;
+  gap: 5px;
+}
