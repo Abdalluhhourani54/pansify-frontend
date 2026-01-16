@@ -7,10 +7,9 @@ import logo from "../assets/Pansify logo.png";
 
 const GENRES = ["All", "Pop", "Rock", "Hip Hop", "R&B", "Electronic", "Jazz", "Country", "Classical"];
 
-export default function UserNavbar() {
+export default function UserNavbar({ selectedGenre, onGenreChange }) {
   const [genreOpen, setGenreOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [selectedGenre, setSelectedGenre] = useState("All");
 
   const closeAll = () => {
     setGenreOpen(false);
@@ -18,17 +17,18 @@ export default function UserNavbar() {
   };
 
   const handlePickGenre = (g) => {
-    setSelectedGenre(g);
+    onGenreChange(g);        // ✅ send to Home
     setGenreOpen(false);
   };
 
   return (
-    <header className="navbar" onClick={() => { /* click outside handled by stopping propagation below */ }}>
+    <header className="navbar">
       <div className="nav-left">
-        {/* Put your logo later in assets; for now we can keep text only */}
-         <img className="nav-logo" src={logo} alt="Pansify logo" />
+        <img className="nav-logo" src={logo} alt="Pansify logo" />
         <div className="nav-brand">
-          <Link className="nav-title" to="/home">Pansify</Link>
+          <Link className="nav-title" to="/home" onClick={closeAll}>
+            Pansify
+          </Link>
         </div>
       </div>
 
@@ -38,7 +38,10 @@ export default function UserNavbar() {
           <button
             className="btn dd-trigger"
             type="button"
-            onClick={() => { setGenreOpen(!genreOpen); setProfileOpen(false); }}
+            onClick={() => {
+              setGenreOpen(!genreOpen);
+              setProfileOpen(false);
+            }}
           >
             {selectedGenre} <span>▾</span>
           </button>
@@ -46,7 +49,12 @@ export default function UserNavbar() {
           {genreOpen && (
             <div className="dd-menu genres">
               {GENRES.map((g) => (
-                <button key={g} className="dd-item" type="button" onClick={() => handlePickGenre(g)}>
+                <button
+                  key={g}
+                  className="dd-item"
+                  type="button"
+                  onClick={() => handlePickGenre(g)}
+                >
                   {g}
                 </button>
               ))}
@@ -55,8 +63,8 @@ export default function UserNavbar() {
         </div>
 
         {/* Request Song Button */}
-        <Link className="nav-link" to="/request-song">
-          <button className="btn btn-primary" type="button" onClick={closeAll}>
+        <Link className="nav-link" to="/request-song" onClick={closeAll}>
+          <button className="btn btn-primary" type="button">
             Request Song
           </button>
         </Link>
@@ -66,19 +74,25 @@ export default function UserNavbar() {
           <button
             className="btn btn-outline dd-trigger"
             type="button"
-            onClick={() => { setProfileOpen(!profileOpen); setGenreOpen(false); }}
+            onClick={() => {
+              setProfileOpen(!profileOpen);
+              setGenreOpen(false);
+            }}
           >
             Profile <FaUserCircle />
-                
-
           </button>
 
           {profileOpen && (
             <div className="dd-menu">
-              <button className="dd-item" type="button" onClick={() => { alert("Logout UI only"); closeAll(); }}>
-                Logout
-            <FaSignOutAlt />
-               
+              <button
+                className="dd-item"
+                type="button"
+                onClick={() => {
+                  alert("Logout UI only");
+                  closeAll();
+                }}
+              >
+                Logout <FaSignOutAlt />
               </button>
             </div>
           )}
