@@ -1,5 +1,6 @@
 // src/App.jsx
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { useState } from "react";
 import "./App.css";
 
 // Navbars
@@ -16,8 +17,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminRequests from "./pages/AdminRequests";
 import NotFound from "./pages/NotFound";
 
-// Layout that controls which navbar appears (or hides it on login/register)
-function Layout({ children }) {
+function Layout({ children, selectedGenre, setSelectedGenre }) {
   const location = useLocation();
 
   const isAdminRoute = location.pathname.startsWith("/admin");
@@ -28,20 +28,32 @@ function Layout({ children }) {
 
   return (
     <>
-      {!hideNavbar && (isAdminRoute ? <AdminNavBar /> : <UserNavBar />)}
+      {!hideNavbar && (
+        isAdminRoute ? (
+          <AdminNavBar />
+        ) : (
+          <UserNavBar
+            selectedGenre={selectedGenre}
+            onGenreChange={setSelectedGenre}
+          />
+        )
+      )}
+
       <div className="app-content">{children}</div>
     </>
   );
 }
 
 export default function App() {
+  const [selectedGenre, setSelectedGenre] = useState("All");
+
   return (
     <BrowserRouter>
-      <Layout>
+      <Layout selectedGenre={selectedGenre} setSelectedGenre={setSelectedGenre}>
         <Routes>
           {/* User */}
-          <Route path="/" element={<Home />} />
-          <Route path="/home" element={<Home />} />
+          <Route path="/" element={<Home selectedGenre={selectedGenre} />} />
+          <Route path="/home" element={<Home selectedGenre={selectedGenre} />} />
           <Route path="/song/:id" element={<SongDetails />} />
           <Route path="/request-song" element={<RequestSong />} />
 
