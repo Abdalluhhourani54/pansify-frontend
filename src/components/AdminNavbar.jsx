@@ -33,27 +33,7 @@ export default function AdminNavbar() {
       </div>
 
       <div className="nav-right" onClick={(e) => e.stopPropagation()}>
-        {/* Genre Dropdown */}
-        <div className="dd">
-          <button
-            className="btn dd-trigger"
-            type="button"
-            onClick={() => { setGenreOpen(!genreOpen); setProfileOpen(false); }}
-          >
-            {selectedGenre} <span>▾</span>
-          </button>
-
-          {genreOpen && (
-            <div className="dd-menu genres">
-              {GENRES.map((g) => (
-                <button key={g} className="dd-item" type="button" onClick={() => handlePickGenre(g)}>
-                  {g}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
+    
         {/* Profile Dropdown (Admin Dashboard + Logout) */}
         <div className="dd">
           <button
@@ -69,9 +49,7 @@ export default function AdminNavbar() {
 
           {profileOpen && (
             <div className="dd-menu">
-              <Link className="nav-link" to="/admin" onClick={closeAll}>
-                <div className="dd-item">Admin Dashboard</div>
-              </Link>
+             
 
               <div className="dd-sep" />
 
