@@ -1,8 +1,10 @@
+import { useEffect, useState } from "react";
+import axios from "axios";
 import { Link } from "react-router-dom";
 import "../styles/songCard.css";
 
 function renderStars(rating) {
-  const full = Math.floor(rating); // 4.5 -> 4
+  const full = Math.floor(rating || 0);
   const stars = [];
 
   for (let i = 1; i <= 5; i++) {
@@ -18,6 +20,27 @@ function renderStars(rating) {
 }
 
 export default function SongCard({ song }) {
+  const [rating, setRating] = useState(0);
+  const [reviewsCount, setReviewsCount] = useState(0);
+
+  useEffect(() => {
+    axios
+      .get(`http://localhost:5000/api/songs/${song.id}/reviews`)
+      .then((res) => {
+        if (res.data.length > 0) {
+          const total = res.data.reduce((sum, r) => sum + r.rating, 0);
+          setRating(total / res.data.length);
+          setReviewsCount(res.data.length);
+        } else {
+          setRating(0);
+          setReviewsCount(0);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [song.id]);
+
   return (
     <div className="song-card">
       <div className="song-card__imageWrap">
@@ -30,8 +53,8 @@ export default function SongCard({ song }) {
         <p className="song-card__artist">{song.artist}</p>
 
         <div className="song-card__ratingRow">
-          <div className="song-card__stars">{renderStars(song.rating)}</div>
-          <span className="song-card__reviews">({song.reviews})</span>
+          <div className="song-card__stars">{renderStars(rating)}</div>
+          <span className="song-card__reviews">({reviewsCount})</span>
         </div>
 
         <Link className="song-card__btn" to={`/song/${song.id}`}>

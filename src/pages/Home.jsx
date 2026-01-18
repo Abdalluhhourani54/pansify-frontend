@@ -1,8 +1,31 @@
+import { useEffect, useState } from "react";
+import axios from "axios";
+
 import SongCard from "../components/SongCard";
-import { songs } from "../data/songs";
+
 import "../styles/home.css";
 
 export default function Home({ selectedGenre }) {
+  const [songs, setSongs] = useState([]);
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:5000/api/songs")
+      .then((res) => {
+        const mapped = res.data.map((song) => ({
+        ...song,
+        cover: song.cover_url ? `http://localhost:5000${song.cover_url}` : "",
+}));
+
+setSongs(mapped);
+
+
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
+
   const filteredSongs =
     selectedGenre === "All"
       ? songs
