@@ -1,63 +1,50 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { FaUserCircle, FaSignOutAlt } from "react-icons/fa";
 import "../styles/navbar.css";
 import logo from "../assets/Pansify logo.png";
 
-
-const GENRES = ["All", "Pop", "Rock", "Hip Hop", "R&B", "Electronic", "Jazz", "Country", "Classical"];
-
 export default function AdminNavbar() {
-  const [genreOpen, setGenreOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [selectedGenre, setSelectedGenre] = useState("All");
+  const navigate = useNavigate();
 
   const closeAll = () => {
-    setGenreOpen(false);
     setProfileOpen(false);
   };
 
-  const handlePickGenre = (g) => {
-    setSelectedGenre(g);
-    setGenreOpen(false);
+  // ✅ REAL LOGOUT
+  const handleLogout = () => {
+    localStorage.removeItem("user"); // remove admin user
+    closeAll();
+    navigate("/login"); // redirect to login
   };
 
   return (
-    <header className="navbar" onClick={closeAll}>
-      <div className="nav-left" onClick={(e) => e.stopPropagation()}>
+    <header className="navbar">
+      <div className="nav-left">
         <img className="nav-logo" src={logo} alt="Pansify logo" />
         <div className="nav-brand">
-          <Link className="nav-title" to="/admin">Pansify</Link>
-          
+          <Link className="nav-title" to="/admin" onClick={closeAll}>
+            Pansify
+          </Link>
         </div>
       </div>
 
-      <div className="nav-right" onClick={(e) => e.stopPropagation()}>
-    
-        {/* Profile Dropdown (Admin Dashboard + Logout) */}
-        <div className="dd">
+      <div className="nav-right">
+        {/* Profile Dropdown */}
+        <div className="dd" onClick={(e) => e.stopPropagation()}>
           <button
             className="btn btn-outline dd-trigger"
             type="button"
-            onClick={() => { setProfileOpen(!profileOpen); setGenreOpen(false); }}
+            onClick={() => setProfileOpen(!profileOpen)}
           >
-            Profile <FaUserCircle />
-               
-                
-                <span>▾</span>
+            Profile <FaUserCircle /> <span>▾</span>
           </button>
 
           {profileOpen && (
             <div className="dd-menu">
-             
-
-              <div className="dd-sep" />
-
-              <button className="dd-item" type="button" onClick={() => { alert("Logout UI only"); closeAll(); }}>
-                 Logout
-                
-                <FaSignOutAlt />
-               
+              <button className="dd-item" type="button" onClick={handleLogout}>
+                Logout <FaSignOutAlt />
               </button>
             </div>
           )}

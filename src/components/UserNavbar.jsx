@@ -1,15 +1,26 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { FaUserCircle, FaSignOutAlt } from "react-icons/fa";
 
 import "../styles/navbar.css";
 import logo from "../assets/Pansify logo.png";
 
-const GENRES = ["All", "Pop", "Rock", "Hip Hop", "R&B", "Electronic", "Jazz", "Country", "Classical"];
+const GENRES = [
+  "All",
+  "Pop",
+  "Rock",
+  "Hip Hop",
+  "R&B",
+  "Electronic",
+  "Jazz",
+  "Country",
+  "Classical",
+];
 
 export default function UserNavbar({ selectedGenre, onGenreChange }) {
   const [genreOpen, setGenreOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const navigate = useNavigate();
 
   const closeAll = () => {
     setGenreOpen(false);
@@ -17,8 +28,15 @@ export default function UserNavbar({ selectedGenre, onGenreChange }) {
   };
 
   const handlePickGenre = (g) => {
-    onGenreChange(g);        // ✅ send to Home
+    onGenreChange(g);
     setGenreOpen(false);
+  };
+
+  // ✅ REAL LOGOUT
+  const handleLogout = () => {
+    localStorage.removeItem("user"); // remove logged-in user
+    closeAll();
+    navigate("/login"); // go back to login
   };
 
   return (
@@ -62,7 +80,7 @@ export default function UserNavbar({ selectedGenre, onGenreChange }) {
           )}
         </div>
 
-        {/* Request Song Button */}
+        {/* Request Song */}
         <Link className="nav-link" to="/request-song" onClick={closeAll}>
           <button className="btn btn-primary" type="button">
             Request Song
@@ -84,14 +102,7 @@ export default function UserNavbar({ selectedGenre, onGenreChange }) {
 
           {profileOpen && (
             <div className="dd-menu">
-              <button
-                className="dd-item"
-                type="button"
-                onClick={() => {
-                  alert("Logout UI only");
-                  closeAll();
-                }}
-              >
+              <button className="dd-item" type="button" onClick={handleLogout}>
                 Logout <FaSignOutAlt />
               </button>
             </div>

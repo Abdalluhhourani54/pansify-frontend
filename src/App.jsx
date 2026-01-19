@@ -13,7 +13,7 @@ import RequestSong from "./pages/RequestSong";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import AdminDashboard from "./pages/AdminDashboard";
-import AdminRequests from "./pages/AdminRequests";
+
 import NotFound from "./pages/NotFound";
 
 function Layout({ children, selectedGenre, setSelectedGenre, user }) {
@@ -118,15 +118,7 @@ export default function App() {
               </AdminRoute>
             }
           />
-          <Route
-            path="/admin/requests"
-            element={
-              <AdminRoute user={user}>
-                <AdminRequests />
-              </AdminRoute>
-            }
-          />
-
+          
           {/* 404 */}
           <Route path="*" element={<NotFound />} />
         </Routes>
