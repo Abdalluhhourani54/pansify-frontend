@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import emailjs from "emailjs-com";
@@ -8,6 +8,8 @@ import "../styles/songDetails.css";
 
 emailjs.init("0C8pGxXGQJfclzwjf");
 
+const API_BASE = "http://localhost:5000";
+
 export default function SongDetails() {
   const { id } = useParams();
 
@@ -16,15 +18,31 @@ export default function SongDetails() {
 
   const [userRating, setUserRating] = useState(0);
   const [userComment, setUserComment] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  // ✅ logged-in user (same style you used before)
+  const savedUser = localStorage.getItem("user");
+  const user = savedUser ? JSON.parse(savedUser) : null;
+
+  const userEmail = (user?.email || "").trim().toLowerCase();
+  const userName = (user?.full_name || user?.fullName || user?.name || "User").trim();
+
+  // ✅ checks if this user already reviewed this song
+  const alreadyReviewed = useMemo(() => {
+    if (!userEmail) return false;
+    return reviews.some(
+      (r) => String(r.reviewer_email || "").trim().toLowerCase() === userEmail
+    );
+  }, [reviews, userEmail]);
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/api/songs/${id}`)
+      .get(`${API_BASE}/api/songs/${id}`)
       .then((res) => {
         const s = res.data;
         const mappedSong = {
           ...s,
-          cover: s.cover_url ? `http://localhost:5000${s.cover_url}` : "",
+          cover: s.cover_url ? `${API_BASE}${s.cover_url}` : "",
         };
         setSong(mappedSong);
       })
@@ -36,9 +54,9 @@ export default function SongDetails() {
 
   const fetchReviews = () => {
     axios
-      .get(`http://localhost:5000/api/songs/${id}/reviews`)
+      .get(`${API_BASE}/api/songs/${id}/reviews`)
       .then((res) => {
-        setReviews(res.data);
+        setReviews(Array.isArray(res.data) ? res.data : []);
       })
       .catch((err) => {
         console.log(err);
@@ -56,44 +74,58 @@ export default function SongDetails() {
       ? reviews.reduce((sum, r) => sum + Number(r.rating || 0), 0) / reviews.length
       : 0;
 
-      
+  // ✅ send email to the logged-in user (not hardcoded)
   const sendThankYouEmail = () => {
+    if (!userEmail) return;
+
     emailjs
       .send("service_rhf3lv7", "template_6b8ps9s", {
-        user_email: "abdullahhourani475@gmail.com",
+        user_email: userEmail,
+        user_name: userName, // (optional) if your template uses it
         song_title: song?.title || "",
         rating: userRating,
         comment: userComment || "No comment provided",
       })
       .then(
-        (result) => {
-          console.log("SUCCESS!", result.text);
-        },
-        (error) => {
-          console.error("FAILED...", error.text);
-        }
+        (result) => console.log("SUCCESS!", result.text),
+        (error) => console.error("FAILED...", error.text)
       );
   };
 
-  const submitReview = () => {
-    axios
-      .post(`http://localhost:5000/api/songs/${id}/reviews`, {
-        reviewer_name: "Guest",
-        reviewer_email: "guest@pansify.com",
+  // ✅ one review per user per song (frontend guard)
+  const submitReview = async () => {
+    if (!userEmail) {
+      alert("Please login first to submit a review.");
+      return;
+    }
+
+    if (alreadyReviewed) {
+      alert("You already reviewed this song. You can only rate once.");
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      await axios.post(`${API_BASE}/api/songs/${id}/reviews`, {
+        reviewer_name: userName,
+        reviewer_email: userEmail,
         rating: userRating,
         comment: userComment,
-      })
-      .then(() => {
-        alert("Thank you for rating this song!");
-        sendThankYouEmail();
-        setUserRating(0);
-        setUserComment("");
-        fetchReviews();
-      })
-      .catch((err) => {
-        console.log(err);
-        alert("Failed to submit review");
       });
+
+      alert("Thank you for rating this song!");
+      sendThankYouEmail();
+
+      setUserRating(0);
+      setUserComment("");
+      fetchReviews();
+    } catch (err) {
+      console.log(err);
+      alert(err?.response?.data?.message || "Failed to submit review");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (!song) {
@@ -139,40 +171,52 @@ export default function SongDetails() {
       <div className="sd-card">
         <h2 className="sd-cardTitle">Add Your Review</h2>
 
-        <div className="sd-field">
-          <label className="sd-label">Your Rating</label>
+        {!userEmail ? (
+          <p style={{ padding: "10px" }}>
+            You must <Link to="/login">login</Link> to submit a review.
+          </p>
+        ) : alreadyReviewed ? (
+          <p style={{ padding: "10px" }}>
+            ✅ You already reviewed this song. You can only rate once.
+          </p>
+        ) : (
+          <>
+            <div className="sd-field">
+              <label className="sd-label">Your Rating</label>
 
-          <div className="sd-starInput">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <span
-                key={star}
-                className={star <= userRating ? "sd-star sd-star--filled" : "sd-star"}
-                onClick={() => setUserRating(star)}
-              >
-                ★
-              </span>
-            ))}
-          </div>
-        </div>
+              <div className="sd-starInput">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <span
+                    key={star}
+                    className={star <= userRating ? "sd-star sd-star--filled" : "sd-star"}
+                    onClick={() => setUserRating(star)}
+                  >
+                    ★
+                  </span>
+                ))}
+              </div>
+            </div>
 
-        <div className="sd-field">
-          <label className="sd-label">Your Comment</label>
-          <textarea
-            className="sd-textarea"
-            placeholder="Share your thoughts about this song..."
-            value={userComment}
-            onChange={(e) => setUserComment(e.target.value)}
-          />
-        </div>
+            <div className="sd-field">
+              <label className="sd-label">Your Comment</label>
+              <textarea
+                className="sd-textarea"
+                placeholder="Share your thoughts about this song..."
+                value={userComment}
+                onChange={(e) => setUserComment(e.target.value)}
+              />
+            </div>
 
-        <button
-          className="sd-btn"
-          type="button"
-          disabled={userRating === 0}
-          onClick={submitReview}
-        >
-          Submit Review
-        </button>
+            <button
+              className="sd-btn"
+              type="button"
+              disabled={userRating === 0 || submitting}
+              onClick={submitReview}
+            >
+              {submitting ? "Submitting..." : "Submit Review"}
+            </button>
+          </>
+        )}
       </div>
 
       {/* REVIEWS LIST */}

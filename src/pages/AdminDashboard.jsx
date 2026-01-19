@@ -6,19 +6,40 @@ import SongsTable from "../components/SongsTable";
 import RequestsTable from "../components/RequestTable";
 import SongForm from "../components/SongForm";
 
-import { adminSongs } from "../data/adminSongs";
-// ✅ remove adminRequests import because now we load from backend
+const API_BASE = "http://localhost:5000";
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState("songs"); // "songs" | "requests"
-  const [songs, setSongs] = useState(adminSongs);
+  const [activeTab, setActiveTab] = useState("songs");
+  const [songs, setSongs] = useState([]);
 
-  // ✅ requests now come from backend
   const [requests, setRequests] = useState([]);
   const [loadingRequests, setLoadingRequests] = useState(false);
 
   const [showForm, setShowForm] = useState(false);
   const [editingSong, setEditingSong] = useState(null);
+
+  const adminHeaders = { "x-role": "admin" };
+
+  // ✅ load songs from backend
+  const fetchSongs = async () => {
+    try {
+      const res = await axios.get(`${API_BASE}/api/songs`);
+      const mapped = (Array.isArray(res.data) ? res.data : []).map((s) => ({
+        ...s,
+        cover: s.cover || s.cover_url || s.cover_path || "",
+        rating: Number(s.avg_rating ?? s.rating ?? 0),
+        reviews: Number(s.reviews_count ?? s.reviews ?? 0),
+      }));
+      setSongs(mapped);
+    } catch (err) {
+      console.log(err?.response?.data || err.message);
+      alert("Failed to load songs");
+    }
+  };
+
+  useEffect(() => {
+    fetchSongs();
+  }, []);
 
   const openAddForm = () => {
     setEditingSong(null);
@@ -35,41 +56,66 @@ export default function AdminDashboard() {
     setShowForm(false);
   };
 
-  // ✅ songs logic stays same (UI only)
-  const saveSong = (song) => {
-    setSongs((prev) => {
-      const exists = prev.some((s) => s.id === song.id);
-      if (exists) return prev.map((s) => (s.id === song.id ? song : s));
-      return [song, ...prev];
-    });
+  // ✅ Add/Edit song calls backend (multer => FormData)
+  const saveSong = async (songData) => {
+    try {
+      const fd = new FormData();
+      fd.append("title", songData.title);
+      fd.append("artist", songData.artist);
+      fd.append("genre", songData.genre || "");
 
-    closeForm();
+      // ✅ if admin chose a new file, send it
+      if (songData.coverFile) {
+        fd.append("cover", songData.coverFile); // MUST match upload.single("cover")
+      }
+
+      // ✅ if editing and NO new file, send old cover so backend keeps it
+      if (editingSong && !songData.coverFile) {
+        fd.append("existing_cover", editingSong.cover || "");
+      }
+
+      // ADD
+      if (!editingSong) {
+        await axios.post(`${API_BASE}/api/songs`, fd, {
+          headers: { ...adminHeaders, "Content-Type": "multipart/form-data" },
+        });
+        alert("Song added ✅");
+      }
+      // EDIT
+      else {
+        await axios.put(`${API_BASE}/api/songs/${editingSong.id}`, fd, {
+          headers: { ...adminHeaders, "Content-Type": "multipart/form-data" },
+        });
+        alert("Song updated ✅");
+      }
+
+      closeForm();
+      fetchSongs();
+    } catch (err) {
+      console.log(err?.response?.data || err.message);
+      alert(err?.response?.data?.message || "Failed to save song");
+    }
   };
 
-  // ✅ songs logic stays same (UI only)
-  const deleteSong = (id) => {
-    setSongs((prev) => prev.filter((s) => s.id !== id));
+  const deleteSong = async (id) => {
+    try {
+      await axios.delete(`${API_BASE}/api/songs/${id}`, { headers: adminHeaders });
+      fetchSongs();
+    } catch (err) {
+      console.log(err?.response?.data || err.message);
+      alert(err?.response?.data?.message || "Failed to delete song");
+    }
   };
 
-  // -----------------------------
-  // ✅ Requests (Backend Connected)
-  // -----------------------------
-
-  const adminHeaders = { "x-role": "admin" };
-
+  // ---------------- Requests (backend) ----------------
   const fetchRequests = async () => {
     setLoadingRequests(true);
     try {
-      const res = await axios.get("http://localhost:5000/api/requests", {
-        headers: adminHeaders,
-      });
-
-      // map created_at to date for your UI
+      const res = await axios.get(`${API_BASE}/api/requests`, { headers: adminHeaders });
       const mapped = (Array.isArray(res.data) ? res.data : []).map((r) => ({
         ...r,
         date: r.date || (r.created_at ? String(r.created_at).slice(0, 10) : ""),
       }));
-
       setRequests(mapped);
     } catch (err) {
       console.log(err?.response?.data || err.message);
@@ -81,11 +127,7 @@ export default function AdminDashboard() {
 
   const approveRequest = async (id) => {
     try {
-      await axios.put(
-        `http://localhost:5000/api/requests/${id}/approve`,
-        {},
-        { headers: adminHeaders }
-      );
+      await axios.put(`${API_BASE}/api/requests/${id}/approve`, {}, { headers: adminHeaders });
       fetchRequests();
     } catch (err) {
       console.log(err?.response?.data || err.message);
@@ -95,11 +137,7 @@ export default function AdminDashboard() {
 
   const rejectRequest = async (id) => {
     try {
-      await axios.put(
-        `http://localhost:5000/api/requests/${id}/reject`,
-        {},
-        { headers: adminHeaders }
-      );
+      await axios.put(`${API_BASE}/api/requests/${id}/reject`, {}, { headers: adminHeaders });
       fetchRequests();
     } catch (err) {
       console.log(err?.response?.data || err.message);
@@ -107,12 +145,8 @@ export default function AdminDashboard() {
     }
   };
 
-  // ✅ load requests ONLY when switching to requests tab
   useEffect(() => {
-    if (activeTab === "requests") {
-      fetchRequests();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (activeTab === "requests") fetchRequests();
   }, [activeTab]);
 
   return (
@@ -143,11 +177,7 @@ export default function AdminDashboard() {
             </button>
 
             {showForm && (
-              <SongForm
-                onCancel={closeForm}
-                onSave={saveSong}
-                editingSong={editingSong}
-              />
+              <SongForm onCancel={closeForm} onSave={saveSong} editingSong={editingSong} />
             )}
 
             <SongsTable songs={songs} onDelete={deleteSong} onEdit={openEditForm} />
@@ -159,11 +189,7 @@ export default function AdminDashboard() {
             {loadingRequests ? (
               <p style={{ padding: "10px" }}>Loading requests...</p>
             ) : (
-              <RequestsTable
-                requests={requests}
-                onApprove={approveRequest}
-                onReject={rejectRequest}
-              />
+              <RequestsTable requests={requests} onApprove={approveRequest} onReject={rejectRequest} />
             )}
           </>
         )}

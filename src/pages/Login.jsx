@@ -7,7 +7,9 @@ import "../styles/auth.css";
 
 import logo from "../assets/Pansify logo.png";
 
-export default function Login({ onLogin }) {
+const API_BASE = "http://localhost:5000";
+
+export default function Login() {
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
@@ -19,20 +21,17 @@ export default function Login({ onLogin }) {
     setLoading(true);
 
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
+      const res = await axios.post(`${API_BASE}/api/auth/login`, {
         email,
         password,
       });
 
-      const user = res.data.user;
+      const user = res.data.user; // { id, full_name, email, role, ... }
 
-      // ✅ save user
+      // ✅ persist user after refresh
       localStorage.setItem("user", JSON.stringify(user));
 
-      // ✅ update App state (IMPORTANT)
-      if (onLogin) onLogin(user);
-
-      // ✅ redirect based on role
+      // ✅ go to correct page
       if (user.role === "admin") navigate("/admin");
       else navigate("/home");
     } catch (err) {
