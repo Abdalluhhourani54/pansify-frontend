@@ -1,23 +1,46 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import { MdEmail } from "react-icons/md";
 import { FaLock } from "react-icons/fa";
 import "../styles/auth.css";
 
 import logo from "../assets/Pansify logo.png";
 
-export default function Login() {
+export default function Login({ onLogin }) {
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
-    // UI only
-    const isAdmin = email.toLowerCase().includes("admin");
-    navigate(isAdmin ? "/admin" : "/home");
+    try {
+      const res = await axios.post("http://localhost:5000/api/auth/login", {
+        email,
+        password,
+      });
+
+      const user = res.data.user;
+
+      // ✅ save user
+      localStorage.setItem("user", JSON.stringify(user));
+
+      // ✅ update App state (IMPORTANT)
+      if (onLogin) onLogin(user);
+
+      // ✅ redirect based on role
+      if (user.role === "admin") navigate("/admin");
+      else navigate("/home");
+    } catch (err) {
+      console.log(err?.response?.data || err.message);
+      alert(err?.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -25,7 +48,6 @@ export default function Login() {
       <div className="auth-card">
         <div className="auth-brand">
           <img className="auth-logo" src={logo} alt="Pansify" />
-          
         </div>
 
         <h1 className="auth-title">Welcome Back</h1>
@@ -63,8 +85,8 @@ export default function Login() {
             </div>
           </div>
 
-          <button className="auth-btn" type="submit">
-            Login
+          <button className="auth-btn" type="submit" disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import { MdEmail } from "react-icons/md";
 import { FaLock, FaUser } from "react-icons/fa";
 import "../styles/auth.css";
@@ -13,12 +14,28 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const [loading, setLoading] = useState(false);
 
-    // UI only (no backend)
-    // after register, go to login
-    navigate("/login");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      await axios.post("http://localhost:5000/api/auth/signup", {
+        full_name: fullName,
+        email,
+        password,
+        role: "user", // ✅ user only (no admin signup)
+      });
+
+      alert("Account created ✅ Please login now");
+      navigate("/login");
+    } catch (err) {
+      console.log(err?.response?.data || err.message);
+      alert(err?.response?.data?.message || "Register failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -79,8 +96,8 @@ export default function Register() {
             </div>
           </div>
 
-          <button className="auth-btn" type="submit">
-            Register
+          <button className="auth-btn" type="submit" disabled={loading}>
+            {loading ? "Creating..." : "Register"}
           </button>
         </form>
 
