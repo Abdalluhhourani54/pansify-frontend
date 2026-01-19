@@ -1,6 +1,26 @@
 import { FaEdit, FaTrash } from "react-icons/fa";
 import "../styles/adminDashboard.css";
 
+const API_BASE = "http://localhost:5000";
+
+function getCoverSrc(song) {
+  const raw = song.cover || song.cover_url || song.cover_path || "";
+  if (!raw) return "";
+
+  // already full url
+  if (raw.startsWith("http://") || raw.startsWith("https://")) return raw;
+
+  // if multer filename only -> /uploads/filename
+  if (!raw.includes("/")) return `${API_BASE}/uploads/${raw}`;
+
+  // if stored as "uploads/filename" or "/uploads/filename"
+  if (raw.startsWith("/uploads")) return `${API_BASE}${raw}`;
+  if (raw.startsWith("uploads")) return `${API_BASE}/${raw}`;
+
+  // fallback
+  return raw;
+}
+
 export default function SongsTable({ songs, onDelete, onEdit }) {
   return (
     <div className="admin-table-card">
@@ -14,38 +34,49 @@ export default function SongsTable({ songs, onDelete, onEdit }) {
         <div>Actions</div>
       </div>
 
-      {songs.map((song) => (
-        <div className="admin-table-row" key={song.id}>
-          <div>
-            <img className="admin-cover" src={song.cover} alt={song.title} />
-          </div>
+      {songs.map((song) => {
+        const rating = Number(song.rating ?? 0);
+        const reviews = Number(song.reviews ?? 0);
+        const coverSrc = getCoverSrc(song);
 
-          <div className="cell-title">
-            <p className="admin-song-title">{song.title}</p>
-          </div>
+        return (
+          <div className="admin-table-row" key={song.id}>
+            <div>
+              {coverSrc ? (
+                <img className="admin-cover" src={coverSrc} alt={song.title} />
+              ) : (
+                <div className="admin-cover" style={{ display: "grid", placeItems: "center" }}>
+                  N/A
+                </div>
+              )}
+            </div>
 
-          <div className="cell-artist">
-            <p className="admin-muted">{song.artist}</p>
-          </div>
+            <div className="cell-title">
+              <p className="admin-song-title">{song.title}</p>
+            </div>
 
-          <div>
-            <span className="genre-pill">{song.genre}</span>
-          </div>
+            <div className="cell-artist">
+              <p className="admin-muted">{song.artist}</p>
+            </div>
 
-          <div className="admin-rating">{song.rating.toFixed(1)}</div>
-          <div className="admin-muted">{song.reviews}</div>
+            <div>
+              <span className="genre-pill">{song.genre}</span>
+            </div>
 
-          {/* ✅ changed class name here */}
-          <div className="row-actions">
-            <button className="icon-btn edit-btn" onClick={() => onEdit(song)}>
-              <FaEdit />
-            </button>
-            <button className="icon-btn delete-btn" onClick={() => onDelete(song.id)}>
-              <FaTrash />
-            </button>
+            <div className="admin-rating">{rating.toFixed(1)}</div>
+            <div className="admin-muted">{reviews}</div>
+
+            <div className="row-actions">
+              <button className="icon-btn edit-btn" onClick={() => onEdit(song)}>
+                <FaEdit />
+              </button>
+              <button className="icon-btn delete-btn" onClick={() => onDelete(song.id)}>
+                <FaTrash />
+              </button>
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

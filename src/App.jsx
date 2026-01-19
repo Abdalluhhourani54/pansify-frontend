@@ -13,112 +13,112 @@ import RequestSong from "./pages/RequestSong";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import AdminDashboard from "./pages/AdminDashboard";
-
 import NotFound from "./pages/NotFound";
 
-function Layout({ children, selectedGenre, setSelectedGenre, user }) {
+function Layout({ children, selectedGenre, setSelectedGenre }) {
   const location = useLocation();
-  const isAdminRoute = location.pathname.startsWith("/admin");
 
+  const isAdminRoute = location.pathname.startsWith("/admin");
   const hideNavbarRoutes = ["/login", "/register"];
   const hideNavbar = hideNavbarRoutes.includes(location.pathname);
 
   return (
     <>
-      {!hideNavbar && user && (
-        isAdminRoute ? (
+      {!hideNavbar &&
+        (isAdminRoute ? (
           <AdminNavBar />
         ) : (
           <UserNavBar selectedGenre={selectedGenre} onGenreChange={setSelectedGenre} />
-        )
-      )}
+        ))}
 
       <div className="app-content">{children}</div>
     </>
   );
 }
 
-function UserRoute({ user, children }) {
-  if (!user) return <Navigate to="/login" />;
+// ✅ guards
+function RequireUser({ children }) {
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+  if (!user) return <Navigate to="/login" replace />;
   return children;
 }
 
-function AdminRoute({ user, children }) {
-  if (!user) return <Navigate to="/login" />;
-  if (user.role !== "admin") return <Navigate to="/home" />;
+function RequireAdmin({ children }) {
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+  if (!user) return <Navigate to="/login" replace />;
+  if (user.role !== "admin") return <Navigate to="/home" replace />;
   return children;
 }
 
 export default function App() {
   const [selectedGenre, setSelectedGenre] = useState("All");
-  const [user, setUser] = useState(null);
 
+  // ✅ keep app stable on refresh (optional but clean)
   useEffect(() => {
-    const saved = localStorage.getItem("user");
-    if (saved) setUser(JSON.parse(saved));
+    // just reading localStorage makes routes stable
+    localStorage.getItem("user");
   }, []);
-
-  // ✅ simple logout handler (optional but useful)
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    setUser(null);
-  };
 
   return (
     <BrowserRouter>
-      <Layout selectedGenre={selectedGenre} setSelectedGenre={setSelectedGenre} user={user}>
+      <Layout selectedGenre={selectedGenre} setSelectedGenre={setSelectedGenre}>
         <Routes>
-          {/* Default */}
-          <Route path="/" element={user ? <Navigate to="/home" /> : <Navigate to="/login" />} />
+          {/* Auth */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
-          {/* User */}
+          {/* User (protected) */}
+          <Route
+            path="/"
+            element={
+              <RequireUser>
+                <Home selectedGenre={selectedGenre} />
+              </RequireUser>
+            }
+          />
           <Route
             path="/home"
             element={
-              <UserRoute user={user}>
+              <RequireUser>
                 <Home selectedGenre={selectedGenre} />
-              </UserRoute>
+              </RequireUser>
             }
           />
           <Route
             path="/song/:id"
             element={
-              <UserRoute user={user}>
+              <RequireUser>
                 <SongDetails />
-              </UserRoute>
+              </RequireUser>
             }
           />
           <Route
             path="/request-song"
             element={
-              <UserRoute user={user}>
+              <RequireUser>
                 <RequestSong />
-              </UserRoute>
+              </RequireUser>
             }
           />
 
-          {/* Auth */}
-          <Route path="/login" element={<Login onLogin={setUser} />} />
-          <Route path="/register" element={<Register />} />
-
-          {/* Admin */}
+          {/* Admin (protected) */}
           <Route
             path="/admin"
             element={
-              <AdminRoute user={user}>
+              <RequireAdmin>
                 <AdminDashboard />
-              </AdminRoute>
+              </RequireAdmin>
             }
           />
           <Route
             path="/admin/dashboard"
             element={
-              <AdminRoute user={user}>
+              <RequireAdmin>
                 <AdminDashboard />
-              </AdminRoute>
+              </RequireAdmin>
             }
           />
-          
+
           {/* 404 */}
           <Route path="*" element={<NotFound />} />
         </Routes>

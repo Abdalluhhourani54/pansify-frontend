@@ -11,9 +11,14 @@ export default function SongForm({ onCancel, onSave, editingSong }) {
 
   useEffect(() => {
     if (editingSong) {
-      setTitle(editingSong.title);
-      setArtist(editingSong.artist);
-      setGenre(editingSong.genre);
+      setTitle(editingSong.title || "");
+      setArtist(editingSong.artist || "");
+      setGenre(editingSong.genre || "Pop");
+      setCoverFile(null);
+    } else {
+      setTitle("");
+      setArtist("");
+      setGenre("Pop");
       setCoverFile(null);
     }
   }, [editingSong]);
@@ -21,16 +26,17 @@ export default function SongForm({ onCancel, onSave, editingSong }) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const coverPreview = coverFile ? URL.createObjectURL(coverFile) : editingSong?.cover;
+    // ✅ for ADD: require image (so multer always receives a file)
+    if (!editingSong && !coverFile) {
+      alert("Please upload a cover image");
+      return;
+    }
 
     onSave({
-      id: editingSong ? editingSong.id : Date.now(),
-      title,
-      artist,
-      genre,
-      rating: editingSong ? editingSong.rating : 0,
-      reviews: editingSong ? editingSong.reviews : 0,
-      cover: coverPreview,
+      title: title.trim(),
+      artist: artist.trim(),
+      genre: genre.trim(),
+      coverFile, // ✅ IMPORTANT: send the File to AdminDashboard to build FormData
     });
 
     setTitle("");
@@ -78,18 +84,22 @@ export default function SongForm({ onCancel, onSave, editingSong }) {
         </div>
 
         <div className="form-item">
-          <label>Upload Cover Image</label>
+          <label>Upload Cover Image {editingSong ? "(optional)" : "*"}</label>
 
           <div className="file-row">
             <input
               className="file-input"
               type="file"
               accept="image/*"
-              onChange={(e) => setCoverFile(e.target.files[0])}
+              onChange={(e) => setCoverFile(e.target.files?.[0] || null)}
             />
           </div>
 
-          <p className="help-text">Upload an image file (JPG, PNG, etc.)</p>
+          <p className="help-text">
+            {editingSong
+              ? "Choose a new image only if you want to replace the old cover."
+              : "Upload an image file (JPG, PNG, etc.)"}
+          </p>
         </div>
       </div>
 
