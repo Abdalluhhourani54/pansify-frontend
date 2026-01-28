@@ -6,7 +6,7 @@ import SongsTable from "../components/SongsTable";
 import RequestsTable from "../components/RequestTable";
 import SongForm from "../components/SongForm";
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = import.meta.env.VITE_API_URL;
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("songs");
@@ -20,7 +20,6 @@ export default function AdminDashboard() {
 
   const adminHeaders = { "x-role": "admin" };
 
-  // ✅ load songs from backend
   const fetchSongs = async () => {
     try {
       const res = await axios.get(`${API_BASE}/api/songs`);
@@ -56,7 +55,6 @@ export default function AdminDashboard() {
     setShowForm(false);
   };
 
-  // ✅ Add/Edit song calls backend (multer => FormData)
   const saveSong = async (songData) => {
     try {
       const fd = new FormData();
@@ -64,25 +62,20 @@ export default function AdminDashboard() {
       fd.append("artist", songData.artist);
       fd.append("genre", songData.genre || "");
 
-      // ✅ if admin chose a new file, send it
       if (songData.coverFile) {
-        fd.append("cover", songData.coverFile); // MUST match upload.single("cover")
+        fd.append("cover", songData.coverFile);
       }
 
-      // ✅ if editing and NO new file, send old cover so backend keeps it
       if (editingSong && !songData.coverFile) {
         fd.append("existing_cover", editingSong.cover || "");
       }
 
-      // ADD
       if (!editingSong) {
         await axios.post(`${API_BASE}/api/songs`, fd, {
           headers: { ...adminHeaders, "Content-Type": "multipart/form-data" },
         });
         alert("Song added ✅");
-      }
-      // EDIT
-      else {
+      } else {
         await axios.put(`${API_BASE}/api/songs/${editingSong.id}`, fd, {
           headers: { ...adminHeaders, "Content-Type": "multipart/form-data" },
         });
@@ -107,11 +100,12 @@ export default function AdminDashboard() {
     }
   };
 
-  // ---------------- Requests (backend) ----------------
   const fetchRequests = async () => {
     setLoadingRequests(true);
     try {
-      const res = await axios.get(`${API_BASE}/api/requests`, { headers: adminHeaders });
+      const res = await axios.get(`${API_BASE}/api/requests`, {
+        headers: adminHeaders,
+      });
       const mapped = (Array.isArray(res.data) ? res.data : []).map((r) => ({
         ...r,
         date: r.date || (r.created_at ? String(r.created_at).slice(0, 10) : ""),
@@ -127,7 +121,11 @@ export default function AdminDashboard() {
 
   const approveRequest = async (id) => {
     try {
-      await axios.put(`${API_BASE}/api/requests/${id}/approve`, {}, { headers: adminHeaders });
+      await axios.put(
+        `${API_BASE}/api/requests/${id}/approve`,
+        {},
+        { headers: adminHeaders }
+      );
       fetchRequests();
     } catch (err) {
       console.log(err?.response?.data || err.message);
@@ -137,7 +135,11 @@ export default function AdminDashboard() {
 
   const rejectRequest = async (id) => {
     try {
-      await axios.put(`${API_BASE}/api/requests/${id}/reject`, {}, { headers: adminHeaders });
+      await axios.put(
+        `${API_BASE}/api/requests/${id}/reject`,
+        {},
+        { headers: adminHeaders }
+      );
       fetchRequests();
     } catch (err) {
       console.log(err?.response?.data || err.message);
@@ -177,7 +179,11 @@ export default function AdminDashboard() {
             </button>
 
             {showForm && (
-              <SongForm onCancel={closeForm} onSave={saveSong} editingSong={editingSong} />
+              <SongForm
+                onCancel={closeForm}
+                onSave={saveSong}
+                editingSong={editingSong}
+              />
             )}
 
             <SongsTable songs={songs} onDelete={deleteSong} onEdit={openEditForm} />
@@ -189,7 +195,11 @@ export default function AdminDashboard() {
             {loadingRequests ? (
               <p style={{ padding: "10px" }}>Loading requests...</p>
             ) : (
-              <RequestsTable requests={requests} onApprove={approveRequest} onReject={rejectRequest} />
+              <RequestsTable
+                requests={requests}
+                onApprove={approveRequest}
+                onReject={rejectRequest}
+              />
             )}
           </>
         )}

@@ -32,11 +32,10 @@ export default function UserNavbar({ selectedGenre, onGenreChange }) {
     setGenreOpen(false);
   };
 
-  // ✅ REAL LOGOUT
   const handleLogout = () => {
-    localStorage.removeItem("user"); // remove logged-in user
+    localStorage.removeItem("user");
     closeAll();
-    navigate("/login"); // go back to login
+    navigate("/login"); 
   };
 
   return (
@@ -51,54 +50,53 @@ export default function UserNavbar({ selectedGenre, onGenreChange }) {
       </div>
 
       <div className="nav-right">
-        {/* Genre Dropdown */}
-        <div className="dd" onClick={(e) => e.stopPropagation()}>
-          <button
-            className="btn dd-trigger"
-            type="button"
-            onClick={() => {
-              setGenreOpen(!genreOpen);
-              setProfileOpen(false);
-            }}
-          >
-            {selectedGenre} <span>▾</span>
-          </button>
+       
+       <div className="dd" onClick={(e) => e.stopPropagation()}>
+  <button
+    className="pbtn dd-trigger"
+    type="button"
+    onClick={() => {
+      setGenreOpen(!genreOpen);
+      setProfileOpen(false);
+    }}
+  >
+    {selectedGenre} <span>▾</span>
+  </button>
 
-          {genreOpen && (
-            <div className="dd-menu genres">
-              {GENRES.map((g) => (
-                <button
-                  key={g}
-                  className="dd-item"
-                  type="button"
-                  onClick={() => handlePickGenre(g)}
-                >
-                  {g}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+  {genreOpen && (
+    <div className="dd-menu genres">
+      {GENRES.map((g) => (
+        <button
+          key={g}
+          className="dd-item"
+          type="button"
+          onClick={() => handlePickGenre(g)}
+        >
+          {g}
+        </button>
+      ))}
+    </div>
+  )}
+</div>
 
-        {/* Request Song */}
-        <Link className="nav-link" to="/request-song" onClick={closeAll}>
-          <button className="btn btn-primary" type="button">
-            Request Song
-          </button>
-        </Link>
 
-        {/* Profile Dropdown */}
-        <div className="dd" onClick={(e) => e.stopPropagation()}>
-          <button
-            className="btn btn-outline dd-trigger"
-            type="button"
-            onClick={() => {
-              setProfileOpen(!profileOpen);
-              setGenreOpen(false);
-            }}
-          >
-            Profile <FaUserCircle />
-          </button>
+       
+       <Link className="nav-link" to="/request-song" onClick={closeAll}>
+  <button className="pbtn pbtn-primary" type="button">
+    Request Song
+  </button>
+</Link>
+
+
+       
+  <div className="dd" onClick={(e) => e.stopPropagation()}>
+  <button
+   className="pbtn pbtn-outline dd-trigger"
+    type="button"
+    onClick={() => setProfileOpen(!profileOpen)}
+  >
+  Profile <FaUserCircle /> <span>▾</span>
+  </button>
 
           {profileOpen && (
             <div className="dd-menu">

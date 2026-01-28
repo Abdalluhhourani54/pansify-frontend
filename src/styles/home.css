@@ -22,11 +22,8 @@
   font-size: 15px;
 }
 
+/* Keep same container width + spacing */
 .home__grid {
   max-width: 1200px;
   margin: 26px auto 0 auto;
-
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 18px;
 }

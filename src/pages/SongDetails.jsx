@@ -8,7 +8,7 @@ import "../styles/songDetails.css";
 
 emailjs.init("0C8pGxXGQJfclzwjf");
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = import.meta.env.VITE_API_URL;
 
 export default function SongDetails() {
   const { id } = useParams();
@@ -20,14 +20,14 @@ export default function SongDetails() {
   const [userComment, setUserComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // ✅ logged-in user (same style you used before)
+  
   const savedUser = localStorage.getItem("user");
   const user = savedUser ? JSON.parse(savedUser) : null;
 
   const userEmail = (user?.email || "").trim().toLowerCase();
   const userName = (user?.full_name || user?.fullName || user?.name || "User").trim();
 
-  // ✅ checks if this user already reviewed this song
+ 
   const alreadyReviewed = useMemo(() => {
     if (!userEmail) return false;
     return reviews.some(
@@ -66,7 +66,7 @@ export default function SongDetails() {
 
   useEffect(() => {
     fetchReviews();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [id]);
 
   const avgRating =
@@ -74,14 +74,14 @@ export default function SongDetails() {
       ? reviews.reduce((sum, r) => sum + Number(r.rating || 0), 0) / reviews.length
       : 0;
 
-  // ✅ send email to the logged-in user (not hardcoded)
+ 
   const sendThankYouEmail = () => {
     if (!userEmail) return;
 
     emailjs
       .send("service_rhf3lv7", "template_6b8ps9s", {
         user_email: userEmail,
-        user_name: userName, // (optional) if your template uses it
+        user_name: userName,
         song_title: song?.title || "",
         rating: userRating,
         comment: userComment || "No comment provided",
@@ -92,7 +92,7 @@ export default function SongDetails() {
       );
   };
 
-  // ✅ one review per user per song (frontend guard)
+  
   const submitReview = async () => {
     if (!userEmail) {
       alert("Please login first to submit a review.");
@@ -145,7 +145,6 @@ export default function SongDetails() {
         ← Back
       </Link>
 
-      {/* TOP CARD */}
       <div className="sd-topCard">
         <div className="sd-coverWrap">
           <img className="sd-cover" src={song.cover} alt={song.title} />
@@ -167,7 +166,6 @@ export default function SongDetails() {
         </div>
       </div>
 
-      {/* ADD REVIEW */}
       <div className="sd-card">
         <h2 className="sd-cardTitle">Add Your Review</h2>
 
@@ -188,7 +186,9 @@ export default function SongDetails() {
                 {[1, 2, 3, 4, 5].map((star) => (
                   <span
                     key={star}
-                    className={star <= userRating ? "sd-star sd-star--filled" : "sd-star"}
+                    className={
+                      star <= userRating ? "sd-star sd-star--filled" : "sd-star"
+                    }
                     onClick={() => setUserRating(star)}
                   >
                     ★
@@ -219,7 +219,6 @@ export default function SongDetails() {
         )}
       </div>
 
-      {/* REVIEWS LIST */}
       <div className="sd-card">
         <h2 className="sd-cardTitle">Reviews ({reviews.length})</h2>
 

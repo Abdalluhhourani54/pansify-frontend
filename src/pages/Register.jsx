@@ -7,6 +7,8 @@ import "../styles/auth.css";
 
 import logo from "../assets/Pansify logo.png";
 
+const API_BASE = import.meta.env.VITE_API_URL;
+
 export default function Register() {
   const navigate = useNavigate();
 
@@ -21,11 +23,11 @@ export default function Register() {
     setLoading(true);
 
     try {
-      await axios.post("http://localhost:5000/api/auth/signup", {
+      await axios.post(`${API_BASE}/api/auth/signup`, {
         full_name: fullName,
         email,
         password,
-        role: "user", // ✅ user only (no admin signup)
+        role: "user", 
       });
 
       alert("Account created ✅ Please login now");

@@ -26,7 +26,7 @@ export default function SongForm({ onCancel, onSave, editingSong }) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // ✅ for ADD: require image (so multer always receives a file)
+
     if (!editingSong && !coverFile) {
       alert("Please upload a cover image");
       return;
@@ -36,7 +36,7 @@ export default function SongForm({ onCancel, onSave, editingSong }) {
       title: title.trim(),
       artist: artist.trim(),
       genre: genre.trim(),
-      coverFile, // ✅ IMPORTANT: send the File to AdminDashboard to build FormData
+      coverFile, 
     });
 
     setTitle("");
