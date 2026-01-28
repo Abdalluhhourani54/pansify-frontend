@@ -1,29 +1,24 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-
 import SongCard from "../components/SongCard";
-
 import "../styles/home.css";
+
+const API_BASE = import.meta.env.VITE_API_URL;
 
 export default function Home({ selectedGenre }) {
   const [songs, setSongs] = useState([]);
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/songs")
+      .get(`${API_BASE}/api/songs`)
       .then((res) => {
         const mapped = res.data.map((song) => ({
-        ...song,
-        cover: song.cover_url ? `http://localhost:5000${song.cover_url}` : "",
-}));
-
-setSongs(mapped);
-
-
+          ...song,
+          cover: song.cover_url ? `${API_BASE}${song.cover_url}` : "",
+        }));
+        setSongs(mapped);
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => console.log(err));
   }, []);
 
   const filteredSongs =
@@ -38,9 +33,11 @@ setSongs(mapped);
         <p className="home__subtitle">Browse and review your favorite songs</p>
       </div>
 
-      <div className="home__grid">
+      <div className="home__grid row g-3">
         {filteredSongs.map((song) => (
-          <SongCard key={song.id} song={song} />
+          <div key={song.id} className="col-12 col-sm-6 col-md-4 col-lg-3">
+            <SongCard song={song} />
+          </div>
         ))}
       </div>
     </div>

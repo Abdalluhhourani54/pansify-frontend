@@ -7,17 +7,16 @@ function getCoverSrc(song) {
   const raw = song.cover || song.cover_url || song.cover_path || "";
   if (!raw) return "";
 
-  // already full url
   if (raw.startsWith("http://") || raw.startsWith("https://")) return raw;
 
-  // if multer filename only -> /uploads/filename
+
   if (!raw.includes("/")) return `${API_BASE}/uploads/${raw}`;
 
-  // if stored as "uploads/filename" or "/uploads/filename"
+
   if (raw.startsWith("/uploads")) return `${API_BASE}${raw}`;
   if (raw.startsWith("uploads")) return `${API_BASE}/${raw}`;
 
-  // fallback
+  
   return raw;
 }
 

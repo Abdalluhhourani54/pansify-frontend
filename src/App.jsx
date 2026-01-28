@@ -36,7 +36,7 @@ function Layout({ children, selectedGenre, setSelectedGenre }) {
   );
 }
 
-// ✅ guards
+
 function RequireUser({ children }) {
   const user = JSON.parse(localStorage.getItem("user") || "null");
   if (!user) return <Navigate to="/login" replace />;
@@ -53,9 +53,9 @@ function RequireAdmin({ children }) {
 export default function App() {
   const [selectedGenre, setSelectedGenre] = useState("All");
 
-  // ✅ keep app stable on refresh (optional but clean)
+  
   useEffect(() => {
-    // just reading localStorage makes routes stable
+   
     localStorage.getItem("user");
   }, []);
 
@@ -63,11 +63,11 @@ export default function App() {
     <BrowserRouter>
       <Layout selectedGenre={selectedGenre} setSelectedGenre={setSelectedGenre}>
         <Routes>
-          {/* Auth */}
+         
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          {/* User (protected) */}
+          
           <Route
             path="/"
             element={
@@ -101,7 +101,7 @@ export default function App() {
             }
           />
 
-          {/* Admin (protected) */}
+         
           <Route
             path="/admin"
             element={
@@ -119,7 +119,7 @@ export default function App() {
             }
           />
 
-          {/* 404 */}
+        
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Layout>

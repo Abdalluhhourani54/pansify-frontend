@@ -4,7 +4,7 @@ export default function RequestsTable({ requests, onApprove, onReject }) {
   return (
     <div className="admin-requests">
       {requests.map((r) => {
-        const statusLower = (r.status || "Pending").toLowerCase(); // pending/approved/rejected
+        const statusLower = (r.status || "Pending").toLowerCase(); 
 
         return (
           <div className="request-card" key={r.id}>

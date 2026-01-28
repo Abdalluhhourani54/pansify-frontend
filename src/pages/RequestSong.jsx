@@ -12,6 +12,8 @@ import {
 } from "react-icons/fa";
 import "../styles/requestSong.css";
 
+const API_BASE = import.meta.env.VITE_API_URL;
+
 export default function RequestSong() {
   const [title, setTitle] = useState("");
   const [artist, setArtist] = useState("");
@@ -21,21 +23,18 @@ export default function RequestSong() {
   const [loadingList, setLoadingList] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  // ✅ get logged-in user from localStorage
   const savedUser = localStorage.getItem("user");
   const user = savedUser ? JSON.parse(savedUser) : null;
   const userEmail = user?.email || "";
 
-  // ✅ GET: load my requests
   const loadMyRequests = async () => {
     if (!userEmail) return;
     setLoadingList(true);
     try {
       const res = await axios.get(
-        `http://localhost:5000/api/requests?email=${encodeURIComponent(userEmail)}`
+        `${API_BASE}/api/requests?email=${encodeURIComponent(userEmail)}`
       );
 
-      // backend might return created_at not date
       const mapped = (Array.isArray(res.data) ? res.data : []).map((r) => ({
         ...r,
         date: r.date || (r.created_at ? String(r.created_at).slice(0, 10) : ""),
@@ -52,10 +51,9 @@ export default function RequestSong() {
 
   useEffect(() => {
     loadMyRequests();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [userEmail]);
 
-  // ✅ POST: create request
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -67,11 +65,11 @@ export default function RequestSong() {
     setSubmitting(true);
 
     try {
-      await axios.post("http://localhost:5000/api/requests", {
+      await axios.post(`${API_BASE}/api/requests`, {
         title: title.trim(),
         artist: artist.trim(),
         genre: genre.trim(),
-        requester_email: userEmail, // ✅ matches your backend DB
+        requester_email: userEmail,
       });
 
       alert("Request submitted ✅");
@@ -80,7 +78,6 @@ export default function RequestSong() {
       setArtist("");
       setGenre("");
 
-      // reload list
       await loadMyRequests();
     } catch (err) {
       console.log(err?.response?.data || err.message);
@@ -97,7 +94,6 @@ export default function RequestSong() {
           <FaArrowLeft /> Back to Songs
         </Link>
 
-        {/* FORM CARD */}
         <div className="rs-card">
           <h1 className="rs-title">Request a Song</h1>
           <p className="rs-subtitle">
@@ -163,7 +159,6 @@ export default function RequestSong() {
           </form>
         </div>
 
-        {/* REQUESTS LIST */}
         <div className="rs-card rs-card--list">
           <h2 className="rs-sectionTitle">Your Requests</h2>
 

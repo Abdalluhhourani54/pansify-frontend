@@ -12,11 +12,11 @@ export default function AdminNavbar() {
     setProfileOpen(false);
   };
 
-  // ✅ REAL LOGOUT
+  
   const handleLogout = () => {
-    localStorage.removeItem("user"); // remove admin user
+    localStorage.removeItem("user"); 
     closeAll();
-    navigate("/login"); // redirect to login
+    navigate("/login");
   };
 
   return (
@@ -31,15 +31,18 @@ export default function AdminNavbar() {
       </div>
 
       <div className="nav-right">
-        {/* Profile Dropdown */}
+        
         <div className="dd" onClick={(e) => e.stopPropagation()}>
-          <button
-            className="btn btn-outline dd-trigger"
-            type="button"
-            onClick={() => setProfileOpen(!profileOpen)}
-          >
-            Profile <FaUserCircle /> <span>▾</span>
-          </button>
+  <button
+    className="pbtn pbtn-outline dd-trigger"
+    type="button"
+    onClick={() => setProfileOpen(!profileOpen)}
+  >
+    Profile <FaUserCircle /> <span>▾</span>
+  </button>
+
+
+
 
           {profileOpen && (
             <div className="dd-menu">

@@ -7,7 +7,7 @@ import "../styles/auth.css";
 
 import logo from "../assets/Pansify logo.png";
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = import.meta.env.VITE_API_URL;
 
 export default function Login() {
   const navigate = useNavigate();
@@ -26,12 +26,10 @@ export default function Login() {
         password,
       });
 
-      const user = res.data.user; // { id, full_name, email, role, ... }
+      const user = res.data.user;
 
-      // ✅ persist user after refresh
       localStorage.setItem("user", JSON.stringify(user));
 
-      // ✅ go to correct page
       if (user.role === "admin") navigate("/admin");
       else navigate("/home");
     } catch (err) {
